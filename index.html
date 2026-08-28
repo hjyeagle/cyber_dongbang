@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="ds/styles.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: var(--color-bg); }
+  * { box-sizing: border-box; }
+  a { color: var(--color-accent-700); text-decoration: none; }
+  a:hover { color: var(--color-accent); }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  ::-webkit-scrollbar { height: 9px; width: 9px; }
+  ::-webkit-scrollbar-thumb { background: var(--color-neutral-400); border-radius: 5px; }
+</style>
+</helmet>
+<div style="width:100%; height:100vh; min-height:100vh; display:flex; flex-direction:column; background:var(--color-bg); color:var(--color-text); font-family:var(--font-body); overflow:hidden; position:relative">
+
+  <header style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); padding:var(--space-3) var(--space-6); border-bottom:1px solid var(--color-divider)">
+    <div style="display:flex; flex-direction:column; gap:3px; min-width:0">
+      <span style="font-family:var(--font-heading); font-size:25px; line-height:1.1; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ t.brand }}</span>
+      <span style="font-size:11px; letter-spacing:0.1em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ t.sub }}</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:var(--space-2); flex:0 0 auto">
+      <div style="display:flex; border:1px solid var(--color-divider); border-radius:var(--radius-md); overflow:hidden">
+        <button onClick="{{ setKo }}" style="padding:7px 13px; border:none; cursor:pointer; font-family:var(--font-heading); font-size:13px; background:{{ koBg }}; color:{{ koFg }}">한국어</button>
+        <button onClick="{{ setZh }}" style="padding:7px 13px; border:none; border-left:1px solid var(--color-divider); cursor:pointer; font-family:var(--font-heading); font-size:13px; background:{{ zhBg }}; color:{{ zhFg }}">中文</button>
+      </div>
+      <button class="btn btn-primary" onClick="{{ toggleGuide }}">운영 안내</button>
+    </div>
+  </header>
+
+  <main style="flex:1 1 auto; position:relative; display:flex; min-height:0; padding:var(--space-4)">
+    <div style="position:relative; flex:1 1 auto; overflow:hidden; border:1px solid var(--color-divider); border-radius:var(--radius-sm); background:linear-gradient(180deg,#faf8f5 0%,#f0ece6 46%,#e9e4dc 62%,#e3ded5 100%)">
+      <div style="position:absolute; left:0; right:0; top:0; height:56%; background:radial-gradient(ellipse 62% 100% at 50% -14%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 72%); pointer-events:none"></div>
+      <div style="position:absolute; left:0; right:0; top:62%; height:1px; background:var(--color-divider); pointer-events:none"></div>
+      <div style="position:absolute; left:0; right:0; bottom:0; height:{{ L.plinth }}; background:linear-gradient(180deg,#ece7e0 0%,#e2dcd3 22%,#d6cfc4 100%); border-top:1px solid color-mix(in srgb, var(--color-text) 12%, transparent); pointer-events:none"></div>
+
+      <div style="position:absolute; top:var(--space-4); left:var(--space-6); right:var(--space-6); display:flex; align-items:baseline; gap:var(--space-3); pointer-events:none">
+        <span style="font-family:var(--font-heading); font-size:{{ L.roomTitle }}; line-height:1.15; letter-spacing:-0.01em">{{ scene.room }}</span>
+        <span style="font-size:11px; letter-spacing:0.14em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ scene.part }}</span>
+      </div>
+
+      <div style="position:absolute; inset:0; padding:{{ L.stagePad }}; display:flex; align-items:stretch; justify-content:center; gap:{{ L.gap }}">
+        <sc-for list="{{ items }}" as="a" hint-placeholder-count="4">
+          <button onClick="{{ a.onOpen }}" style="flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:0; padding:0; border:none; background:transparent; cursor:zoom-in">
+            <span style="flex:1 1 auto; width:100%; display:flex; align-items:flex-end; justify-content:center; min-height:0">
+              <img src="{{ a.src }}" alt="{{ a.no }}" style="display:block; width:auto; max-width:100%; height:{{ a.h }}; object-fit:contain; mix-blend-mode:multiply" />
+            </span>
+            <span style="flex:0 0 auto; width:100%; height:{{ L.plinth }}; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:5px; padding:12px 6px 0">
+              <span style="width:26px; height:1px; background:var(--color-accent); opacity:.7"></span>
+              <span style="font-size:12px; letter-spacing:0.14em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ a.no }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:var(--space-8); pointer-events:none">
+          <span style="font-family:var(--font-heading); font-size:17px; color:var(--color-neutral-700); text-align:center; text-wrap:pretty">{{ t.emptyRoom }}</span>
+        </div>
+      </sc-if>
+
+      <button onClick="{{ prev }}" aria-label="prev" style="position:absolute; left:var(--space-3); top:50%; transform:translateY(-50%); width:44px; height:44px; border:1px solid var(--color-divider); border-radius:50%; background:color-mix(in srgb, #ffffff 78%, transparent); color:var(--color-neutral-800); font-family:var(--font-heading); font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0 3px 3px 0" style-hover="border-color:var(--color-accent); color:var(--color-accent)">‹</button>
+      <button onClick="{{ next }}" aria-label="next" style="position:absolute; right:var(--space-3); top:50%; transform:translateY(-50%); width:44px; height:44px; border:1px solid var(--color-divider); border-radius:50%; background:color-mix(in srgb, #ffffff 78%, transparent); color:var(--color-neutral-800); font-family:var(--font-heading); font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0 0 3px 3px" style-hover="border-color:var(--color-accent); color:var(--color-accent)">›</button>
+
+      <span style="position:absolute; right:var(--space-4); bottom:calc({{ L.plinth }} + var(--space-3)); font-size:11px; letter-spacing:0.16em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ sceneCounter }}</span>
+    </div>
+  </main>
+
+  <footer style="flex:0 0 auto; display:flex; align-items:center; gap:var(--space-4); padding:var(--space-3) var(--space-6); border-top:1px solid var(--color-divider)">
+    <span style="flex:0 0 auto; font-size:11px; letter-spacing:0.18em; color:var(--color-neutral-800); white-space:nowrap">{{ t.route }}</span>
+    <div style="flex:1 1 auto; display:flex; align-items:stretch; gap:6px; overflow-x:auto; overflow-y:hidden; padding-bottom:6px">
+      <sc-for list="{{ rail }}" as="s" hint-placeholder-count="8">
+        <button onClick="{{ s.onGo }}" style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 10px; cursor:pointer; border-radius:var(--radius-md); border:1px solid {{ s.border }}; background:{{ s.bg }}">
+          <span style="font-family:var(--font-heading); font-size:13px; line-height:1.2; color:{{ s.fg }}; white-space:nowrap">{{ s.label }}</span>
+          <span style="font-size:11px; letter-spacing:0.08em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ s.range }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="flex:0 0 auto; display:flex; align-items:center; gap:var(--space-3)">
+      <span style="font-size:11px; letter-spacing:0.12em; color:var(--color-neutral-800); white-space:nowrap">{{ t.tray }}</span>
+      <button class="btn btn-primary" onClick="{{ openCompare }}" disabled="{{ compareDisabled }}">{{ t.compareOpen }}</button>
+    </div>
+  </footer>
+
+  <sc-if value="{{ zoomOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; z-index:20; background:var(--color-bg); isolation:isolate; display:flex; flex-direction:column; animation:rise .22s ease">
+      <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); padding:var(--space-3) var(--space-6); border-bottom:1px solid var(--color-divider)">
+        <div style="display:flex; flex-direction:column; gap:3px; min-width:0">
+          <span style="font-family:var(--font-heading); font-size:19px; white-space:nowrap">{{ zoom.title }}</span>
+          <span style="font-size:11px; letter-spacing:0.14em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ t.zoomHint }}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:var(--space-2); flex:0 0 auto; flex-wrap:wrap; justify-content:flex-end">
+          <button class="btn btn-secondary" onClick="{{ zoomOut }}">−</button>
+          <span style="min-width:58px; text-align:center; font-family:var(--font-heading); font-size:14px; font-feature-settings:'tnum'">{{ zoomPct }}</span>
+          <button class="btn btn-secondary" onClick="{{ zoomIn }}">＋</button>
+          <button class="btn btn-secondary" onClick="{{ addCompare }}">{{ t.addCompare }}</button>
+          <button class="btn btn-ghost" onClick="{{ closeZoom }}">{{ t.close }} ✕</button>
+        </div>
+      </div>
+      <div onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" style="flex:1 1 auto; position:relative; overflow:hidden; background:linear-gradient(180deg,#faf8f5,#eee9e2); cursor:{{ zoomCursor }}; touch-action:none; min-height:0">
+        <img src="{{ zoom.src }}" alt="{{ zoom.no }}" draggable="false" style="position:absolute; left:50%; top:50%; max-width:none; height:{{ zoomImgH }}; transform:{{ zoomTransform }}; user-select:none; mix-blend-mode:multiply; transition:height .18s ease" />
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ compareOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; z-index:30; background:var(--color-bg); isolation:isolate; display:flex; flex-direction:column; animation:rise .22s ease">
+      <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); padding:var(--space-3) var(--space-6); border-bottom:1px solid var(--color-divider)">
+        <span style="font-family:var(--font-heading); font-size:19px">{{ t.compareOpen }}</span>
+        <div style="display:flex; gap:var(--space-2)">
+          <button class="btn btn-secondary" onClick="{{ clearCompare }}">{{ t.compareClear }}</button>
+          <button class="btn btn-ghost" onClick="{{ closeCompare }}">{{ t.close }} ✕</button>
+        </div>
+      </div>
+      <div style="flex:1 1 auto; display:grid; grid-template-columns:{{ L.compareCols }}; overflow-y:auto; overflow-x:hidden; min-height:0">
+        <sc-for list="{{ comparePair }}" as="c" hint-placeholder-count="2">
+          <div style="display:flex; flex-direction:column; gap:var(--space-3); padding:var(--space-6); border-right:1px solid var(--color-divider); min-width:0">
+            <div style="flex:1 1 auto; display:flex; align-items:center; justify-content:center; min-height:{{ L.compareImg }}; background:linear-gradient(180deg,#faf8f5,#efebe4); border:1px solid var(--color-divider); border-radius:var(--radius-sm)">
+              <img src="{{ c.src }}" alt="{{ c.no }}" style="display:block; max-height:{{ L.compareImg }}; max-width:82%; width:auto; object-fit:contain; mix-blend-mode:multiply" />
+            </div>
+            <div style="flex:0 0 auto; display:flex; align-items:baseline; justify-content:space-between; gap:var(--space-3); padding-top:var(--space-2); border-top:1px solid var(--color-divider)">
+              <span style="font-family:var(--font-heading); font-size:19px">{{ c.room }}</span>
+              <span style="font-size:13px; letter-spacing:0.12em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ c.no }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ guideOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; z-index:40; background:var(--color-bg); overflow-y:auto; overflow-x:hidden; animation:rise .22s ease">
+      <div style="max-width:900px; margin:0 auto; padding:var(--space-8) var(--space-6) 96px; display:flex; flex-direction:column; gap:var(--space-6)">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-6)">
+          <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+            <span style="font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-accent-700)">operation guide</span>
+            <h2 style="margin:0; font-size:36px; line-height:1.16">동방예술관 운영 안내</h2>
+          </div>
+          <button class="btn btn-ghost" onClick="{{ toggleGuide }}" style="flex:0 0 auto">닫기 ✕</button>
+        </div>
+        <p style="margin:0; font-size:15px; line-height:1.9; text-align:justify; text-wrap:pretty">유물 사진을 전시실에 놓고, 파일을 손으로 고치고, 깃허브에 올려 공개하는 과정을 순서대로 적었습니다. 프로그램을 다룬 적이 없어도 <strong>사진을 폴더에 넣고 목록에 한 줄 적는 일</strong>이 전부입니다.</p>
+        <hr class="hr" style="margin:0" />
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">01</span>
+          <h4 style="margin:0; font-size:20px">파일이 놓인 자리</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">전시관은 아래 네 덩어리로 이루어져 있습니다. 이 폴더 전체를 그대로 옮기면 어느 컴퓨터에서나 같이 열립니다.</p>
+          <pre style="margin:var(--space-2) 0 0; padding:var(--space-4); background:var(--color-neutral-100); border:1px solid var(--color-divider); border-radius:var(--radius-md); font-size:12.5px; line-height:1.8; overflow-x:auto">동방예술관/
+├─ 동방예술관.dc.html     ← 전시관 본문 (이 파일만 고치면 됩니다)
+├─ support.js             ← 화면을 그려 주는 부품 (건드리지 않습니다)
+├─ ds/styles.css          ← 글꼴·색 규칙 (건드리지 않습니다)
+└─ assets/art/            ← 유물 사진이 모여 있는 폴더
+   ├─ 1.jpg
+   ├─ 3.jpg
+   └─ …</pre>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">02</span>
+          <h4 style="margin:0; font-size:20px">유물 사진 준비</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">파일 이름은 <strong>도록 번호</strong>로 맞춥니다. 도록 12번 유물이면 <code>12.jpg</code>입니다. 지금처럼 흰 배경으로 촬영된 사진이면 배경을 따로 지우지 않아도 전시실 벽 색으로 자연스럽게 사라집니다. 세로 2000픽셀 이상이면 확대 보기에서 세부가 살아납니다. 확장자는 소문자 <code>.jpg</code>로 통일하는 편이 안전합니다.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">03</span>
+          <h4 style="margin:0; font-size:20px">유물 한 점을 전시실에 놓기</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">사진을 <code>assets/art/</code>에 넣고, 본문 파일에서 <code>const ROOMS</code>를 찾아 해당 전시실의 <code>items</code>에 한 줄을 더합니다. <code>id</code>는 파일 이름의 숫자, <code>s</code>는 좌대 위에서 차지할 높이 비율입니다.</p>
+          <pre style="margin:var(--space-2) 0 0; padding:var(--space-4); background:var(--color-neutral-100); border:1px solid var(--color-divider); border-radius:var(--radius-md); font-size:12.5px; line-height:1.8; overflow-x:auto">{ k: "불상", z: "佛像", items: [
+    { id: 1,   s: 0.96 },
+    { id: 3,   s: 1.00 },
+    { id: 112, s: 0.70 }     ← 새로 넣은 112.jpg
+] },</pre>
+          <p style="margin:var(--space-2) 0 0; font-size:14px; line-height:1.85; text-align:justify">저장하고 브라우저를 새로 고치면 바로 보입니다. 한 장면에는 네 점까지 놓이고, 다섯 점이 넘으면 같은 전시실이 <em>1/2, 2/2</em> 장면으로 자동으로 나뉘어 화살표로 이어집니다. 즉 238점을 다 넣어도 목록만 길어질 뿐 구조는 그대로입니다.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">04</span>
+          <h4 style="margin:0; font-size:20px">전시실 늘리기와 이름 바꾸기</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">알려 주신 일곱 갈래(도자기류·불상·청동·옥유물·벽화·토기·기타)를 전시실로 세워 두었습니다. 벽화실과 기타실은 사진이 오면 채워지도록 비워 둔 상태입니다. 전시실을 새로 만들려면 <code>ROOMS</code> 목록에 한 덩어리를 더하면 됩니다. <code>k</code>는 한국어 이름, <code>z</code>는 중국어 이름이고, 순서가 곧 제1실·제2실 순서입니다.</p>
+          <pre style="margin:var(--space-2) 0 0; padding:var(--space-4); background:var(--color-neutral-100); border:1px solid var(--color-divider); border-radius:var(--radius-md); font-size:12.5px; line-height:1.8; overflow-x:auto">{ k: "석조", z: "石造", items: [
+    { id: 205, s: 0.9 }
+] },</pre>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">05</span>
+          <h4 style="margin:0; font-size:20px">크기 비율 <code>s</code> 정하기</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">사진마다 촬영 거리가 달라 그대로 놓으면 옥패가 불상보다 커 보입니다. <code>s</code>는 좌대 위 높이를 0.3~1.0 사이로 조절하는 값입니다. 한 장면에서 가장 큰 유물을 1.0으로 두고 나머지를 눈으로 맞추면 충분합니다. 유물별 실측 높이(cm)가 정리되면 그 값으로 실제 비례를 자동 계산하도록 바꿀 수 있습니다.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">06</span>
+          <h4 style="margin:0; font-size:20px">내 컴퓨터에서 고치고 확인하기</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">파일을 그냥 두 번 눌러 열면(<code>file://</code>) 브라우저가 사진과 글꼴 읽기를 막는 경우가 있습니다. <strong>작은 웹서버를 띄워서 여는 것</strong>이 정석이고, 명령 한 줄이면 됩니다. 폴더 안에서 터미널(윈도우: 명령 프롬프트)을 열고,</p>
+          <pre style="margin:var(--space-2) 0 0; padding:var(--space-4); background:var(--color-neutral-100); border:1px solid var(--color-divider); border-radius:var(--radius-md); font-size:12.5px; line-height:1.8; overflow-x:auto">macOS / Linux :  python3 -m http.server 8000
+Windows        :  py -m http.server 8000
+
+브라우저 주소창 :  http://localhost:8000/index.html</pre>
+          <p style="margin:var(--space-2) 0 0; font-size:14px; line-height:1.85; text-align:justify">본문 파일을 메모장이나 VS Code로 열어 고친 뒤 저장하고, 브라우저에서 새로 고침(⌘R / F5)하면 바로 반영됩니다. VS Code를 쓰신다면 <em>Live Server</em> 확장을 설치해 파일을 우클릭 → <em>Open with Live Server</em> 를 누르는 편이 더 간단합니다. 저장할 때마다 화면이 저절로 갱신됩니다. 고치기 전에 폴더를 한 벌 복사해 두면 되돌리기가 쉽습니다.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">07</span>
+          <h4 style="margin:0; font-size:20px">깃허브에 올려 공개하기</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">깃허브는 파일을 올려 두면 주소를 만들어 주는 곳입니다. 명령어를 몰라도 화면에서 끌어다 놓기만 하면 됩니다.</p>
+          <div style="display:flex; flex-direction:column; gap:var(--space-2); padding-top:var(--space-2)">
+            <span style="font-size:14px; line-height:1.85"><strong>①</strong> 깃허브 계정을 만들고 <em>New repository</em> 로 저장소를 하나 만듭니다. 이름은 영문으로 <code>dongbang-museum</code> 처럼, 공개(Public)로 둡니다.</span>
+            <span style="font-size:14px; line-height:1.85"><strong>②</strong> 올리기 전에 본문 파일 이름을 <code>index.html</code> 로 바꿉니다. 첫 화면으로 자동 인식되고, 주소에 한글이 섞이지 않습니다. 내용은 그대로 두면 됩니다.</span>
+            <span style="font-size:14px; line-height:1.85"><strong>③</strong> 저장소 화면의 <em>Add file → Upload files</em> 에 <code>index.html</code>, <code>support.js</code>, <code>ds</code> 폴더, <code>assets</code> 폴더를 함께 끌어다 놓고 <em>Commit changes</em> 를 누릅니다. 폴더 구조가 유지되어야 사진이 보입니다.</span>
+            <span style="font-size:14px; line-height:1.85"><strong>④</strong> <em>Settings → Pages</em> 에서 Source 를 <em>Deploy from a branch</em>, Branch 를 <em>main / (root)</em> 로 두고 저장합니다.</span>
+            <span style="font-size:14px; line-height:1.85"><strong>⑤</strong> 2~3분 뒤 <code>https://아이디.github.io/dongbang-museum/</code> 주소가 열립니다. 이 주소를 후원 안내나 도록에 함께 적어 두시면 됩니다.</span>
+          </div>
+          <p style="margin:var(--space-2) 0 0; font-size:14px; line-height:1.85; text-align:justify">이후 유물을 추가할 때도 같은 자리에 사진을 올리고 <code>index.html</code> 을 다시 올리면 주소는 그대로 유지됩니다. 사진 용량이 크면 한 번에 100개 이내로 나누어 올리는 편이 안전합니다.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+          <span style="font-family:var(--font-heading); font-size:24px; color:var(--color-accent); font-feature-settings:'tnum'">08</span>
+          <h4 style="margin:0; font-size:20px">도록 238점과 맞추기</h4>
+          <p style="margin:0; font-size:14px; line-height:1.85; text-align:justify">지금은 전문가 촬영본 가운데 19점만 올라가 있습니다. 파일 이름을 도록 번호로 맞추어 두면, 사진이 준비되는 대로 한 줄씩 더해 도록과 화면이 같은 번호로 대응합니다. 진위 검사가 끝나 분류나 명칭이 확정되면 그때 유물명과 해설을 얹으면 됩니다. 검사 전이라 지금은 번호만 표기하고 있습니다.</p>
+        </div>
+
+        <hr class="hr" style="margin:0" />
+        <div style="display:flex; flex-direction:column; gap:var(--space-3)">
+          <span style="font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--color-neutral-800)">막히면 이 순서로</span>
+          <div style="display:grid; grid-template-columns:{{ L.guideCols }}; gap:var(--space-3)">
+            <div class="card" style="padding:var(--space-4); display:flex; flex-direction:column; gap:6px">
+              <span style="font-family:var(--font-heading); font-size:16px">사진이 안 보인다</span>
+              <span style="font-size:13px; line-height:1.75; color:var(--color-neutral-800)">파일 이름의 숫자와 <code>id</code> 값이 같은지, <code>assets/art/</code> 안에 들어 있는지 확인합니다.</span>
+            </div>
+            <div class="card" style="padding:var(--space-4); display:flex; flex-direction:column; gap:6px">
+              <span style="font-family:var(--font-heading); font-size:16px">화면이 하얗게 뜬다</span>
+              <span style="font-size:13px; line-height:1.75; color:var(--color-neutral-800)">목록에서 쉼표나 중괄호가 빠진 경우가 대부분입니다. 고치기 전 복사본으로 되돌리세요.</span>
+            </div>
+            <div class="card" style="padding:var(--space-4); display:flex; flex-direction:column; gap:6px">
+              <span style="font-family:var(--font-heading); font-size:16px">글꼴이 달라 보인다</span>
+              <span style="font-size:13px; line-height:1.75; color:var(--color-neutral-800)">인터넷 연결이 필요한 글꼴을 씁니다. 오프라인 전시가 필요하면 알려 주세요.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;collectionName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;동방예술관&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ko&quot;,&quot;options&quot;:[&quot;ko&quot;,&quot;zh&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;showNumbers&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;전시 설정&quot;}}">
+const CATALOG_TOTAL = 238;
+
+const ROOMS = [
+  { k: "도자기류", z: "陶瓷", items: [
+    { id: 45, s: 0.74 }, { id: 54, s: 0.72 }, { id: 12, s: 0.42 }, { id: 55, s: 0.40 }
+  ] },
+  { k: "불상", z: "佛像", items: [
+    { id: 1, s: 0.96 }, { id: 3, s: 1.00 }, { id: 4, s: 0.82 }, { id: 9, s: 0.92 },
+    { id: 10, s: 0.80 }, { id: 38, s: 1.00 }, { id: 48, s: 0.95 }, { id: 59, s: 0.68 }
+  ] },
+  { k: "청동", z: "青铜", items: [
+    { id: 70, s: 0.60 }, { id: 74, s: 0.98 }
+  ] },
+  { k: "옥유물", z: "玉器", items: [
+    { id: 81, s: 0.48 }, { id: 104, s: 0.54 }
+  ] },
+  { k: "벽화", z: "壁画", items: [] },
+  { k: "토기", z: "陶器", items: [
+    { id: 21, s: 0.58 }, { id: 24, s: 0.44 }, { id: 107, s: 0.60 }
+  ] },
+  { k: "기타", z: "其他", items: [] }
+];
+
+const PER_SCENE = 4;
+
+const SCENES = [];
+ROOMS.forEach((r, ri) => {
+  const n = Math.max(1, Math.ceil(r.items.length / PER_SCENE));
+  for (let i = 0; i < n; i++) {
+    SCENES.push({ room: ri, items: r.items.slice(i * PER_SCENE, (i + 1) * PER_SCENE), part: i + 1, parts: n });
+  }
+});
+
+const SHOWN = ROOMS.reduce((s, r) => s + r.items.length, 0);
+
+const T = {
+  ko: { brand: "동방예술관", route: "전시 동선", close: "닫기", addCompare: "비교에 추가",
+    compareOpen: "비교 보기", compareClear: "비우기", trayEmpty: "비교함 비어 있음",
+    zoomHint: "끌어서 이동 · 원본 해상도", emptyRoom: "사진이 준비되면 이 전시실에 놓입니다",
+    sub: "도록 수록 " + CATALOG_TOTAL + "점 · 현재 공개 " + SHOWN + "점 · 진위 검사 진행 중",
+    tray: (n) => "비교함 " + n + "/2", room: (i, r) => "제" + (i + 1) + "실 · " + r.k },
+  zh: { brand: "东方艺术馆", route: "参观路线", close: "关闭", addCompare: "加入对比",
+    compareOpen: "对比查看", compareClear: "清空", trayEmpty: "对比栏为空",
+    zoomHint: "拖动移动 · 原始分辨率", emptyRoom: "照片备齐后将陈列于此展厅",
+    sub: "图录收录 " + CATALOG_TOTAL + " 件 · 现公开 " + SHOWN + " 件 · 真伪鉴定进行中",
+    tray: (n) => "对比栏 " + n + "/2", room: (i, r) => "第" + (i + 1) + "厅 · " + r.z }
+};
+
+const ZSTEPS = [1, 1.6, 2.4, 3.6];
+
+class Component extends DCLogic {
+  state = { scene: 0, lang: null, zoomId: null, zi: 1, zx: 0, zy: 0,
+    compare: [], compareOpen: false, guideOpen: false, vw: 1440, vh: 900 };
+
+  componentDidMount() {
+    this._resize = () => this.setState({ vw: window.innerWidth, vh: window.innerHeight });
+    this._resize();
+    window.addEventListener("resize", this._resize);
+    this._key = (e) => {
+      if (e.key === "Escape") { this.setState({ zoomId: null, compareOpen: false, guideOpen: false }); return; }
+      if (this.state.zoomId !== null || this.state.compareOpen || this.state.guideOpen) return;
+      if (e.key === "ArrowRight") this.move(1);
+      if (e.key === "ArrowLeft") this.move(-1);
+    };
+    window.addEventListener("keydown", this._key);
+  }
+  componentWillUnmount() {
+    window.removeEventListener("resize", this._resize);
+    window.removeEventListener("keydown", this._key);
+  }
+
+  move(d) { this.setState({ scene: (this.state.scene + d + SCENES.length) % SCENES.length, zoomId: null }); }
+  lang() { return this.state.lang || this.props.defaultLang || "ko"; }
+
+  card(id) {
+    const ri = ROOMS.findIndex(r => r.items.some(it => it.id === id));
+    const t = T[this.lang()];
+    return { id, no: "no. " + String(id).padStart(3, "0"), src: "assets/art/" + id + ".jpg",
+      room: t.room(ri, ROOMS[ri]) };
+  }
+
+  renderVals() {
+    const lang = this.lang(), t = T[lang];
+    const brand = this.props.collectionName || t.brand;
+    const showNumbers = this.props.showNumbers !== false;
+    const mob = this.state.vw < 820, short = this.state.vh < 720;
+
+    const L = {
+      plinth: mob ? "68px" : short ? "74px" : "88px",
+      gap: mob ? "var(--space-2)" : "var(--space-6)",
+      stagePad: mob ? "72px var(--space-4) 0" : short ? "78px var(--space-8) 0" : "92px var(--space-8) 0",
+      roomTitle: mob ? "22px" : "30px",
+      compareCols: mob ? "1fr" : "1fr 1fr",
+      compareImg: mob ? "32vh" : "52vh",
+      guideCols: mob ? "1fr" : "1fr 1fr 1fr"
+    };
+
+    const sc = SCENES[this.state.scene], room = ROOMS[sc.room];
+    const items = sc.items.map(it => ({
+      src: "assets/art/" + it.id + ".jpg",
+      no: showNumbers ? "no. " + String(it.id).padStart(3, "0") : "",
+      h: (it.s * 100).toFixed(0) + "%",
+      onOpen: () => this.setState({ zoomId: it.id, zi: 1, zx: 0, zy: 0 })
+    }));
+
+    const rail = SCENES.map((s, i) => {
+      const on = i === this.state.scene, r = ROOMS[s.room];
+      return {
+        label: t.room(s.room, r),
+        range: r.items.length === 0 ? (lang === "zh" ? "筹备中" : "준비 중")
+          : s.parts > 1 ? s.part + " / " + s.parts
+          : s.items.length + (lang === "zh" ? " 件" : " 점"),
+        border: on ? "var(--color-accent)" : "var(--color-divider)",
+        bg: on ? "color-mix(in srgb, var(--color-accent-100) 70%, transparent)" : "transparent",
+        fg: on ? "var(--color-accent-700)" : "var(--color-text)",
+        onGo: () => this.setState({ scene: i, zoomId: null })
+      };
+    });
+
+    const zc = this.state.zoomId !== null ? this.card(this.state.zoomId) : null;
+    const z = ZSTEPS[this.state.zi];
+
+    return {
+      t: Object.assign({}, t, { brand, tray: this.state.compare.length ? t.tray(this.state.compare.length) : t.trayEmpty }),
+      L, items, rail,
+      empty: sc.items.length === 0,
+      scene: { room: t.room(sc.room, room), part: sc.parts > 1 ? sc.part + " / " + sc.parts : "" },
+      sceneCounter: String(this.state.scene + 1).padStart(2, "0") + " / " + String(SCENES.length).padStart(2, "0"),
+      koBg: lang === "ko" ? "color-mix(in srgb, var(--color-accent-100) 80%, transparent)" : "transparent",
+      koFg: lang === "ko" ? "var(--color-accent-700)" : "var(--color-neutral-800)",
+      zhBg: lang === "zh" ? "color-mix(in srgb, var(--color-accent-100) 80%, transparent)" : "transparent",
+      zhFg: lang === "zh" ? "var(--color-accent-700)" : "var(--color-neutral-800)",
+      setKo: () => this.setState({ lang: "ko" }),
+      setZh: () => this.setState({ lang: "zh" }),
+      prev: () => this.move(-1),
+      next: () => this.move(1),
+      toggleGuide: () => this.setState({ guideOpen: !this.state.guideOpen }),
+
+      zoomOpen: !!zc,
+      zoom: zc ? { src: zc.src, no: zc.no, title: zc.room + "   " + zc.no } : null,
+      zoomPct: Math.round(z * 100) + "%",
+      zoomImgH: (z * 80).toFixed(0) + "%",
+      zoomTransform: "translate(calc(-50% + " + this.state.zx + "px), calc(-50% + " + this.state.zy + "px))",
+      zoomCursor: this._drag ? "grabbing" : "grab",
+      closeZoom: () => this.setState({ zoomId: null }),
+      zoomIn: () => this.setState({ zi: Math.min(ZSTEPS.length - 1, this.state.zi + 1) }),
+      zoomOut: () => this.setState(s => ({ zi: Math.max(0, s.zi - 1), zx: 0, zy: 0 })),
+      dragStart: (e) => { this._drag = { x: e.clientX, y: e.clientY, zx: this.state.zx, zy: this.state.zy }; if (e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId); this.forceUpdate(); },
+      dragMove: (e) => { if (!this._drag) return; this.setState({ zx: this._drag.zx + (e.clientX - this._drag.x), zy: this._drag.zy + (e.clientY - this._drag.y) }); },
+      dragEnd: () => { this._drag = null; this.forceUpdate(); },
+
+      addCompare: () => {
+        const id = this.state.zoomId; if (id === null) return;
+        let c = this.state.compare.filter(x => x !== id);
+        c = c.length >= 2 ? [c[1], id] : c.concat([id]);
+        this.setState({ compare: c, zoomId: c.length === 2 ? null : this.state.zoomId, compareOpen: c.length === 2 });
+      },
+      comparePair: this.state.compare.map(id => this.card(id)),
+      compareDisabled: this.state.compare.length < 2,
+      compareOpen: this.state.compareOpen && this.state.compare.length === 2,
+      openCompare: () => this.setState({ compareOpen: true, zoomId: null }),
+      closeCompare: () => this.setState({ compareOpen: false }),
+      clearCompare: () => this.setState({ compare: [], compareOpen: false }),
+      guideOpen: this.state.guideOpen
+    };
+  }
+}
+
+</script>
+</body>
+</html>

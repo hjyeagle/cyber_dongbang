@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #0c0c0b; }
+  * { box-sizing: border-box; }
+  a { color: #cfd8cf; text-decoration: none; }
+  a:hover { color: #ffffff; }
+  @keyframes halo { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,.35); } 70% { box-shadow: 0 0 0 14px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+<div style="width:100%; min-height:100vh; height:100vh; display:flex; flex-direction:column; background:#0c0c0b; color:#e8e6e0; font-family:'Noto Sans KR',sans-serif; overflow:hidden; position:relative">
+
+  <header style="flex:0 0 auto; height:72px; display:flex; align-items:center; justify-content:space-between; padding:0 28px; borderBottom:1px solid rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.08)">
+    <div style="display:flex; align-items:baseline; gap:14px">
+      <span style="font-family:'Noto Serif KR',serif; font-size:20px; font-weight:700; letter-spacing:.06em">사이버박물관</span>
+      <span style="font-size:11px; letter-spacing:.22em; color:rgba(232,230,224,.45); text-transform:uppercase">cyber museum · 도자공예실</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px">
+      <button onClick="{{ toggleGuide }}" style="height:36px; padding:0 16px; border:1px solid rgba(255,255,255,.22); background:transparent; color:#e8e6e0; font-family:'Noto Sans KR',sans-serif; font-size:13px; letter-spacing:.04em; cursor:pointer; border-radius:2px" style-hover="border-color:rgba(255,255,255,.6); background:rgba(255,255,255,.06)">구축 가이드</button>
+    </div>
+  </header>
+
+  <main style="flex:1 1 auto; position:relative; display:flex; align-items:center; justify-content:center; padding:22px 84px; min-height:0">
+
+    <div style="position:relative; height:100%; aspect-ratio:1104 / 749; max-width:100%; overflow:hidden; box-shadow:0 30px 90px rgba(0,0,0,.7)">
+      <img src="{{ scene.src }}" alt="{{ scene.room }}" style="position:absolute; left:-8.47%; top:0; width:112.99%; height:111.11%; object-fit:cover" />
+
+      <sc-for list="{{ hotspots }}" as="h" hint-placeholder-count="3">
+        <button onClick="{{ h.onSelect }}" title="{{ h.name }}" style="position:absolute; left:{{ h.x }}%; top:{{ h.y }}%; transform:translate(-50%,-50%); width:44px; height:44px; display:flex; align-items:center; justify-content:center; padding:0; border:none; background:transparent; cursor:pointer">
+          <span style="width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500; letter-spacing:.02em; backdrop-filter:blur(2px); transition:transform .18s ease; background:{{ h.bg }}; color:{{ h.fg }}; border:1px solid {{ h.ring }}; animation:{{ h.anim }}">{{ h.label }}</span>
+        </button>
+      </sc-for>
+
+      <div style="position:absolute; left:0; bottom:0; padding:22px 26px; display:flex; flex-direction:column; gap:6px; background:linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0)); width:100%; pointer-events:none">
+        <span style="font-size:11px; letter-spacing:.2em; color:rgba(255,255,255,.6)">{{ scene.room }}</span>
+        <span style="font-family:'Noto Serif KR',serif; font-size:26px; font-weight:600; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.6)">{{ scene.title }}</span>
+      </div>
+    </div>
+
+    <button onClick="{{ prev }}" aria-label="이전 전시 장면" style="position:absolute; left:16px; top:50%; transform:translateY(-50%); width:52px; height:96px; border:none; background:rgba(0,0,0,.55); color:#fff; font-size:26px; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:rgba(0,0,0,.85)">‹</button>
+    <button onClick="{{ next }}" aria-label="다음 전시 장면" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); width:52px; height:96px; border:none; background:rgba(0,0,0,.55); color:#fff; font-size:26px; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:rgba(0,0,0,.85)">›</button>
+  </main>
+
+  <footer style="flex:0 0 auto; height:118px; display:flex; align-items:center; gap:18px; padding:0 28px; border-top:1px solid rgba(255,255,255,.08); background:#0a0a09">
+    <span style="font-size:11px; letter-spacing:.2em; color:rgba(232,230,224,.68); white-space:nowrap">전시 동선</span>
+    <div style="display:flex; align-items:center; gap:12px; overflow-x:auto; padding:4px 0">
+      <sc-for list="{{ rail }}" as="s" hint-placeholder-count="2">
+        <button onClick="{{ s.onGo }}" style="position:relative; flex:0 0 auto; width:132px; height:86px; padding:0; border:1px solid {{ s.border }}; background:#111; cursor:pointer; opacity:{{ s.opacity }}; transition:opacity .2s ease">
+          <img src="{{ s.src }}" alt="{{ s.room }}" style="display:block; width:100%; height:100%; object-fit:cover; transform:scale(1.16) translate(-2.5%,-3.5%)" />
+          <span style="position:absolute; left:0; right:0; bottom:0; padding:5px 7px; font-size:10px; letter-spacing:.08em; color:#fff; background:rgba(0,0,0,.6); text-align:left; font-family:'Noto Sans KR',sans-serif">{{ s.room }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:4px; white-space:nowrap">
+      <span style="font-size:11px; letter-spacing:.16em; color:rgba(232,230,224,.72)">유물 번호를 누르면 해설이 열립니다</span>
+      <span style="font-family:'Noto Serif KR',serif; font-size:13px; color:rgba(232,230,224,.85)">← → 방향키로 전시실 이동</span>
+    </div>
+  </footer>
+
+  <aside style="position:absolute; top:0; right:0; bottom:0; width:432px; max-width:92vw; background:#131311; border-left:1px solid rgba(255,255,255,.1); box-shadow:-30px 0 80px rgba(0,0,0,.6); display:flex; flex-direction:column; transition:transform .32s cubic-bezier(.4,0,.2,1); transform:{{ panelTransform }}">
+    <sc-if value="{{ selected }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1 1 auto; overflow-y:auto">
+        <div style="position:relative; width:100%; aspect-ratio:4 / 3; background:#0a0a09; overflow:hidden; cursor:zoom-in" onClick="{{ openZoom }}">
+          <img src="{{ selected.src }}" alt="{{ selected.name }}" style="position:absolute; width:{{ selected.zw }}; height:{{ selected.zh }}; left:{{ selected.zx }}; top:{{ selected.zy }}; object-fit:cover" />
+          <span style="position:absolute; right:10px; bottom:10px; padding:5px 10px; font-size:11px; letter-spacing:.1em; background:rgba(0,0,0,.6); color:#fff">확대 보기 ＋</span>
+        </div>
+        <div style="padding:26px 28px 34px; display:flex; flex-direction:column; gap:22px">
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <span style="font-size:11px; letter-spacing:.2em; color:{{ accent }}">{{ selected.period }}</span>
+            <h2 style="margin:0; font-family:'Noto Serif KR',serif; font-size:25px; font-weight:700; line-height:1.35; color:#fff; text-wrap:pretty">{{ selected.name }}</h2>
+            <span style="font-size:12px; letter-spacing:.06em; color:rgba(232,230,224,.45)">{{ selected.nameEn }}</span>
+          </div>
+          <div style="display:grid; grid-template-columns:76px 1fr; gap:10px 16px; font-size:13px; line-height:1.7; padding:18px 0; border-top:1px solid rgba(255,255,255,.1); border-bottom:1px solid rgba(255,255,255,.1)">
+            <span style="color:rgba(232,230,224,.45)">재질</span><span>{{ selected.material }}</span>
+            <span style="color:rgba(232,230,224,.45)">크기</span><span>{{ selected.size }}</span>
+            <span style="color:rgba(232,230,224,.45)">소장</span><span>{{ selected.holder }}</span>
+            <span style="color:rgba(232,230,224,.45)">지정</span><span>{{ selected.designation }}</span>
+          </div>
+          <p style="margin:0; font-size:14px; line-height:1.95; color:rgba(232,230,224,.82); text-wrap:pretty">{{ selected.desc }}</p>
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <span style="font-size:11px; letter-spacing:.2em; color:rgba(232,230,224,.4)">감상 포인트</span>
+            <p style="margin:0; font-size:13px; line-height:1.85; color:rgba(232,230,224,.66); text-wrap:pretty">{{ selected.point }}</p>
+          </div>
+        </div>
+      </div>
+      <button onClick="{{ closePanel }}" style="flex:0 0 auto; height:56px; border:none; border-top:1px solid rgba(255,255,255,.1); background:transparent; color:rgba(232,230,224,.7); font-family:'Noto Sans KR',sans-serif; font-size:13px; letter-spacing:.14em; cursor:pointer" style-hover="background:rgba(255,255,255,.05); color:#fff">닫기 ✕</button>
+    </sc-if>
+  </aside>
+
+  <sc-if value="{{ zoomOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeZoom }}" style="position:absolute; inset:0; background:rgba(6,6,5,.94); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; cursor:zoom-out; z-index:20; animation:fadein .25s ease">
+      <div style="position:relative; height:70vh; aspect-ratio:{{ zoomAspect }}; max-width:86vw; overflow:hidden; background:#0a0a09; box-shadow:0 40px 120px rgba(0,0,0,.8)">
+        <img src="{{ selected.src }}" alt="{{ selected.name }}" style="position:absolute; width:{{ selected.zw }}; height:{{ selected.zh }}; left:{{ selected.zx }}; top:{{ selected.zy }}" />
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px">
+        <span style="font-family:'Noto Serif KR',serif; font-size:19px; color:#fff">{{ selected.name }}</span>
+        <span style="font-size:11px; letter-spacing:.18em; color:rgba(255,255,255,.45)">아무 곳이나 눌러 닫기 · esc</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ guideOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; background:rgba(8,8,7,.96); z-index:30; overflow-y:auto; animation:fadein .25s ease">
+      <div style="max-width:960px; margin:0 auto; padding:64px 40px 96px; display:flex; flex-direction:column; gap:44px">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:24px">
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <span style="font-size:11px; letter-spacing:.24em; color:rgba(232,230,224,.45)">how to build</span>
+            <h2 style="margin:0; font-family:'Noto Serif KR',serif; font-size:34px; font-weight:700; color:#fff; line-height:1.3">사이버박물관 구축 방법</h2>
+            <p style="margin:0; font-size:14px; line-height:1.9; color:rgba(232,230,224,.62); max-width:620px; text-wrap:pretty">첨부해 주신 이미지는 <strong style="color:#fff; font-weight:500">전시실 배경 사진</strong> 위에 <strong style="color:#fff; font-weight:500">배경을 지운 유물 사진(투명 PNG)</strong>을 올려 합성한 결과물입니다. 이 화면은 그 이미지들을 실제 관람 경험으로 엮은 프로토타입이며, 아래 순서대로 자료를 채우면 그대로 확장됩니다.</p>
+          </div>
+          <button onClick="{{ toggleGuide }}" style="flex:0 0 auto; width:44px; height:44px; border:1px solid rgba(255,255,255,.2); background:transparent; color:#fff; font-size:18px; cursor:pointer" style-hover="background:rgba(255,255,255,.08)">✕</button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0">
+          <div style="display:grid; grid-template-columns:64px 1fr; gap:0 28px; padding:26px 0; border-top:1px solid rgba(255,255,255,.12)">
+            <span style="font-family:'Noto Serif KR',serif; font-size:26px; color:rgba(232,230,224,.35)">01</span>
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <h3 style="margin:0; font-family:'Noto Serif KR',serif; font-size:19px; color:#fff">소재 촬영·수집</h3>
+              <p style="margin:0; font-size:13.5px; line-height:1.9; color:rgba(232,230,224,.7); text-wrap:pretty">배경 — 전시실을 정면 또는 파노라마로 촬영합니다. 삼각대 고정, ISO 400 이하, 가로 3000px 이상. 유물 — 무광 흰 배경에서 정면·측면·상세 3컷씩, 그림자가 바닥에 닿는 컷을 반드시 확보합니다(합성 시 그림자 참조용).</p>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:64px 1fr; gap:0 28px; padding:26px 0; border-top:1px solid rgba(255,255,255,.12)">
+            <span style="font-family:'Noto Serif KR',serif; font-size:26px; color:rgba(232,230,224,.35)">02</span>
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <h3 style="margin:0; font-family:'Noto Serif KR',serif; font-size:19px; color:#fff">유물 누끼 및 톤 정합</h3>
+              <p style="margin:0; font-size:13.5px; line-height:1.9; color:rgba(232,230,224,.7); text-wrap:pretty">유물을 투명 배경 PNG로 분리한 뒤 ① 배경의 광원 방향과 같은 쪽에 접지 그림자를 깔고 ② 배경 색온도에 맞춰 유물의 화이트밸런스를 미세 조정하며 ③ 배경의 초점 거리에 맞춰 유물 외곽을 0.3~0.8px 흐립니다. 이 세 가지를 지키면 '붙여넣은 느낌'이 사라집니다.</p>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:64px 1fr; gap:0 28px; padding:26px 0; border-top:1px solid rgba(255,255,255,.12)">
+            <span style="font-family:'Noto Serif KR',serif; font-size:26px; color:rgba(232,230,224,.35)">03</span>
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <h3 style="margin:0; font-family:'Noto Serif KR',serif; font-size:19px; color:#fff">전시 동선 설계</h3>
+              <p style="margin:0; font-size:13.5px; line-height:1.9; color:rgba(232,230,224,.7); text-wrap:pretty">장면을 계층으로 나눕니다. 로비 → 전시실 전경(좌대 배치) → 진열장 클로즈업 → 유물 상세. 첨부하신 두 이미지가 각각 3단계 중 2·3단계에 해당하므로, 전경 1컷 + 진열장 2~3컷 + 유물 상세를 한 전시실 단위로 묶으면 관람 리듬이 만들어집니다.</p>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:64px 1fr; gap:0 28px; padding:26px 0; border-top:1px solid rgba(255,255,255,.12)">
+            <span style="font-family:'Noto Serif KR',serif; font-size:26px; color:rgba(232,230,224,.35)">04</span>
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <h3 style="margin:0; font-family:'Noto Serif KR',serif; font-size:19px; color:#fff">유물 좌표와 해설 데이터</h3>
+              <p style="margin:0; font-size:13.5px; line-height:1.9; color:rgba(232,230,224,.7); text-wrap:pretty">이미지 위 유물 위치를 백분율 좌표로 기록하면 화면 크기와 무관하게 핫스팟이 붙습니다. 해설은 명칭·시대·재질·크기·소장처·설명·감상 포인트를 한 묶음으로 관리하고, 확대 뷰용 크롭 영역도 같은 백분율로 적어 둡니다.</p>
+              <pre style="margin:6px 0 0; padding:18px 20px; background:#0a0a09; border:1px solid rgba(255,255,255,.1); font-family:'SFMono-Regular',Consolas,monospace; font-size:12px; line-height:1.75; color:rgba(232,230,224,.75); overflow-x:auto">{ "room": "제1실 · 도자공예",
+  "src": "assets/room1.png",
+  "artifacts": [
+    { "no": 1, "x": 37.5, "y": 55,
+      "crop": { "x": 30, "y": 42, "w": 16, "h": 45 },
+      "name": "청자 상감 모란문 병",
+      "period": "고려 12세기", "material": "청자",
+      "size": "높이 32.5cm", "desc": "…" }
+  ] }</pre>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:64px 1fr; gap:0 28px; padding:26px 0; border-top:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12)">
+            <span style="font-family:'Noto Serif KR',serif; font-size:26px; color:rgba(232,230,224,.35)">05</span>
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <h3 style="margin:0; font-family:'Noto Serif KR',serif; font-size:19px; color:#fff">운영과 확장</h3>
+              <p style="margin:0; font-size:13.5px; line-height:1.9; color:rgba(232,230,224,.7); text-wrap:pretty">데이터를 분리해 두면 유물 추가는 항목 한 줄로 끝납니다. 이후 오디오 도슨트(유물별 mp3), 다국어(같은 구조에 언어 키 추가), 360° 파노라마 전환, 관람 기록·방명록을 순차로 얹을 수 있습니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:14px">
+          <span style="font-size:11px; letter-spacing:.24em; color:rgba(232,230,224,.45)">준비물 체크리스트</span>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px">
+            <div style="padding:18px 20px; border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; gap:7px">
+              <span style="font-family:'Noto Serif KR',serif; font-size:15px; color:#fff">전시실 배경</span>
+              <span style="font-size:12.5px; line-height:1.8; color:rgba(232,230,224,.6)">JPG, 가로 2400px 이상, 전시실별 1~3컷</span>
+            </div>
+            <div style="padding:18px 20px; border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; gap:7px">
+              <span style="font-family:'Noto Serif KR',serif; font-size:15px; color:#fff">유물 누끼</span>
+              <span style="font-size:12.5px; line-height:1.8; color:rgba(232,230,224,.6)">투명 PNG, 세로 1600px 이상, 유물당 1컷</span>
+            </div>
+            <div style="padding:18px 20px; border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; gap:7px">
+              <span style="font-family:'Noto Serif KR',serif; font-size:15px; color:#fff">해설 원고</span>
+              <span style="font-size:12.5px; line-height:1.8; color:rgba(232,230,224,.6)">유물당 200~300자, 엑셀·구글시트 한 장</span>
+            </div>
+            <div style="padding:18px 20px; border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; gap:7px">
+              <span style="font-family:'Noto Serif KR',serif; font-size:15px; color:#fff">권리 확인</span>
+              <span style="font-size:12.5px; line-height:1.8; color:rgba(232,230,224,.6)">소장처 이미지 사용 허락, 출처 표기 문구</span>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin:0; font-size:12.5px; line-height:1.9; color:rgba(232,230,224,.42); text-wrap:pretty">※ 현재 화면의 유물 명칭·시대·해설은 구조를 보여 주기 위한 예시입니다. 실제 소장 정보를 주시면 그대로 교체합니다.</p>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#a8c3b0&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#a8c3b0&quot;,&quot;#c9a86a&quot;,&quot;#b98b7a&quot;,&quot;#8fa8c0&quot;],&quot;section&quot;:&quot;전시 연출&quot;},&quot;markerStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;번호&quot;,&quot;options&quot;:[&quot;번호&quot;,&quot;점&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 연출&quot;}}">
+const IMG_W = 1248, IMG_H = 832;
+
+const SCENES = [
+  {
+    room: "제1실 · 도자공예",
+    title: "청자와 백자, 흙에 새긴 시간",
+    src: "assets/room1-pedestal.png",
+    artifacts: [
+      {
+        x: 37.5, y: 55, crop: { x: 29, y: 41, w: 17, h: 46 },
+        name: "청자 상감 포도문 병",
+        nameEn: "Celadon Bottle with Inlaid Grapevine Design",
+        period: "고려 12세기", material: "청자, 상감", size: "높이 32.5cm",
+        holder: "국립중앙박물관", designation: "예시 데이터",
+        desc: "목이 길고 어깨에서 굽으로 부드럽게 좁아지는 고려 병의 전형입니다. 표면을 백토와 자토로 상감해 포도 덩굴을 새겼고, 유약은 옅은 비색을 띱니다.",
+        point: "빙렬(유약의 잔금)이 광원 방향에 따라 다르게 보입니다. 확대 뷰에서 굽 주변의 유약 두께 차이를 살펴보세요."
+      },
+      {
+        x: 49, y: 63, crop: { x: 40, y: 35, w: 21, h: 56 },
+        name: "청자 상감 포도동자문 표형 주자",
+        nameEn: "Gourd-shaped Celadon Ewer with Inlaid Grapevine and Boys",
+        period: "고려 12~13세기", material: "청자, 상감", size: "높이 34.4cm",
+        holder: "국립중앙박물관", designation: "예시 데이터",
+        desc: "호리병 모양 몸체에 꼬인 손잡이와 긴 주구를 붙인 주자입니다. 포도 덩굴 사이로 동자가 노니는 장면을 상감해, 다산과 풍요를 기원하는 뜻을 담았습니다.",
+        point: "손잡이의 꼬임과 주구의 곡선이 몸체의 두 곡면과 이루는 리듬이 이 기물의 핵심입니다."
+      },
+      {
+        x: 60.5, y: 63, crop: { x: 52, y: 47, w: 18, h: 39 },
+        name: "백자 청화 초충문 표형병",
+        nameEn: "White Porcelain Gourd-shaped Bottle with Blue Insect Design",
+        period: "조선 18세기", material: "백자, 청화", size: "높이 21.5cm",
+        holder: "국립중앙박물관", designation: "예시 데이터",
+        desc: "회백색 백자 표면에 코발트 안료로 풀과 벌레를 간결하게 그렸습니다. 여백을 넉넉히 두는 조선 후기 청화백자의 화면 운용을 잘 보여 줍니다.",
+        point: "붓을 뗀 자리마다 안료가 번진 농담 차이를 확대해서 보면 그린 순서가 읽힙니다."
+      }
+    ]
+  },
+  {
+    room: "제2실 · 진열장",
+    title: "유리 한 겹 앞에서",
+    src: "assets/room2-case.png",
+    artifacts: [
+      {
+        x: 37, y: 62, crop: { x: 29, y: 46, w: 17, h: 31 },
+        name: "청자 조형 뚜껑 합",
+        nameEn: "Celadon Covered Box with Bird-shaped Knob",
+        period: "고려 12세기", material: "청자", size: "높이 18.0cm",
+        holder: "국립중앙박물관", designation: "예시 데이터",
+        desc: "뚜껑 위에 새 모양 꼭지를 세우고 기하 문양을 촘촘히 두른 합입니다. 굽 부분까지 문양이 이어져 기물 전체가 하나의 무늬 면처럼 읽힙니다.",
+        point: "새 꼭지가 향한 방향이 진열 정면을 결정합니다. 실제 전시에서도 이 각도로 놓입니다."
+      },
+      {
+        x: 54.5, y: 58, crop: { x: 45, y: 38, w: 18, h: 38 },
+        name: "백자 철화 운학문 매병",
+        nameEn: "White Porcelain Maebyeong with Iron-glaze Cloud and Crane Design",
+        period: "조선 15~16세기", material: "백자, 철화", size: "높이 31.2cm",
+        holder: "국립중앙박물관", designation: "예시 데이터",
+        desc: "어깨가 넓고 아래로 좁아지는 매병 형태에 철사 안료로 구름과 학을 그렸습니다. 빠른 붓질로 학의 날개를 단숨에 처리한 자유로운 필치가 특징입니다.",
+        point: "학의 날개 끝이 어깨 곡선을 따라 흐르도록 배치되어, 기물을 돌려 볼 때 움직임이 생깁니다."
+      }
+    ]
+  }
+];
+
+class Component extends DCLogic {
+  state = { sceneIndex: 0, selectedNo: null, zoomOpen: false, guideOpen: false };
+
+  componentDidMount() {
+    this._onKey = (e) => {
+      if (e.key === "ArrowRight") this.go(1);
+      else if (e.key === "ArrowLeft") this.go(-1);
+      else if (e.key === "Escape") {
+        if (this.state.zoomOpen) this.setState({ zoomOpen: false });
+        else if (this.state.guideOpen) this.setState({ guideOpen: false });
+        else this.setState({ selectedNo: null });
+      }
+    };
+    window.addEventListener("keydown", this._onKey);
+  }
+  componentWillUnmount() { window.removeEventListener("keydown", this._onKey); }
+
+  go(d) {
+    const n = (this.state.sceneIndex + d + SCENES.length) % SCENES.length;
+    this.setState({ sceneIndex: n, selectedNo: null, zoomOpen: false });
+  }
+
+  renderVals() {
+    const accent = this.props.accentColor || "#a8c3b0";
+    const numbered = (this.props.markerStyle || "번호") === "번호";
+    const scene = SCENES[this.state.sceneIndex];
+    const sel = this.state.selectedNo;
+
+    // 배경 이미지는 원본 좌측 7.5% / 하단 10%를 잘라 표시하므로 핫스팟 좌표도 같은 비율로 환산
+    const mapX = (x) => ((x - 7.5) / 88.5) * 100;
+    const mapY = (y) => (y / 90) * 100;
+
+    const hotspots = scene.artifacts.map((a, i) => {
+      const on = sel === i;
+      return {
+        x: mapX(a.x).toFixed(2), y: mapY(a.y).toFixed(2), name: a.name,
+        label: numbered ? String(i + 1) : "",
+        bg: on ? accent : "rgba(12,12,11,.55)",
+        fg: on ? "#12140f" : "#ffffff",
+        ring: on ? accent : "rgba(255,255,255,.75)",
+        anim: on ? "none" : "halo 2.8s ease-out infinite",
+        onSelect: () => this.setState({ selectedNo: i })
+      };
+    });
+
+    const rail = SCENES.map((s, i) => ({
+      src: s.src, room: s.room,
+      border: i === this.state.sceneIndex ? accent : "rgba(255,255,255,.16)",
+      opacity: i === this.state.sceneIndex ? 1 : 0.5,
+      onGo: () => this.setState({ sceneIndex: i, selectedNo: null, zoomOpen: false })
+    }));
+
+    let selected = null, zoomAspect = "4 / 3";
+    if (sel !== null && scene.artifacts[sel]) {
+      const a = scene.artifacts[sel];
+      const c = a.crop;
+      selected = Object.assign({}, a, {
+        src: scene.src,
+        zw: (10000 / c.w).toFixed(2) + "%",
+        zh: (10000 / c.h).toFixed(2) + "%",
+        zx: (-c.x * 100 / c.w).toFixed(2) + "%",
+        zy: (-c.y * 100 / c.h).toFixed(2) + "%"
+      });
+      zoomAspect = (c.w * IMG_W) + " / " + (c.h * IMG_H);
+    }
+
+    return {
+      accent, scene, hotspots, rail, selected, zoomAspect,
+      zoomOpen: this.state.zoomOpen && !!selected,
+      guideOpen: this.state.guideOpen,
+      panelTransform: selected ? "translateX(0)" : "translateX(105%)",
+      prev: () => this.go(-1),
+      next: () => this.go(1),
+      closePanel: () => this.setState({ selectedNo: null, zoomOpen: false }),
+      openZoom: () => this.setState({ zoomOpen: true }),
+      closeZoom: () => this.setState({ zoomOpen: false }),
+      toggleGuide: () => this.setState({ guideOpen: !this.state.guideOpen })
+    };
+  }
+}
+
+</script>
+</body>
+</html>
