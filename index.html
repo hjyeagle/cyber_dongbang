@@ -390,7 +390,7 @@ class Component extends DCLogic {
 
   renderVals() {
     const lang = this.lang(), t = T[lang];
-    const brand = this.props.collectionName || t.brand;
+    const brand = lang === "zh" ? t.brand : (this.props.collectionName || t.brand);
     const showNumbers = this.props.showNumbers !== false;
     const mob = this.state.vw < 820, short = this.state.vh < 720;
 
