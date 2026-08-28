@@ -31,6 +31,7 @@
         <button onClick="{{ setKo }}" style="padding:7px 13px; border:none; cursor:pointer; font-family:var(--font-heading); font-size:13px; background:{{ koBg }}; color:{{ koFg }}">한국어</button>
         <button onClick="{{ setZh }}" style="padding:7px 13px; border:none; border-left:1px solid var(--color-divider); cursor:pointer; font-family:var(--font-heading); font-size:13px; background:{{ zhBg }}; color:{{ zhFg }}">中文</button>
       </div>
+      <button class="btn btn-ghost" onClick="{{ openIntro }}">{{ t.introTitle }}</button>
       <button class="btn btn-primary" onClick="{{ toggleGuide }}">운영 안내</button>
     </div>
   </header>
@@ -247,37 +248,41 @@ Windows        :  py -m http.server 8000
       </div>
     </div>
   </sc-if>
+
+  <sc-if value="{{ introOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; z-index:60; background:#141210; display:flex; flex-direction:column; animation:rise .28s ease">
+      <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); padding:var(--space-3) var(--space-6); border-bottom:1px solid rgba(255,255,255,.14)">
+        <div style="display:flex; flex-direction:column; gap:3px; min-width:0">
+          <span style="font-family:var(--font-heading); font-size:21px; line-height:1.15; letter-spacing:-0.01em; color:#f3f2f2; white-space:nowrap">{{ t.introTitle }}</span>
+          <span style="font-size:11px; letter-spacing:0.16em; color:rgba(243,242,242,.52); font-feature-settings:'tnum'">{{ introCounter }}</span>
+        </div>
+        <button class="btn btn-primary" onClick="{{ enter }}" style="flex:0 0 auto; border-color:var(--color-accent); color:var(--color-accent-300); background:transparent">{{ t.enter }} →</button>
+      </div>
+      <div style="flex:1 1 0; position:relative; display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden; padding:{{ L.introPad }}">
+        <img src="{{ intro.src }}" alt="{{ introCounter }}" style="display:block; width:100%; height:100%; object-fit:contain" />
+        <button onClick="{{ introPrev }}" aria-label="prev" style="position:absolute; left:var(--space-4); top:50%; transform:translateY(-50%); width:44px; height:44px; border:1px solid rgba(255,255,255,.26); border-radius:50%; background:rgba(0,0,0,.28); color:rgba(243,242,242,.8); font-family:var(--font-heading); font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0 3px 3px 0" style-hover="border-color:var(--color-accent); color:var(--color-accent-300)">‹</button>
+        <button onClick="{{ introNext }}" aria-label="next" style="position:absolute; right:var(--space-4); top:50%; transform:translateY(-50%); width:44px; height:44px; border:1px solid rgba(255,255,255,.26); border-radius:50%; background:rgba(0,0,0,.28); color:rgba(243,242,242,.8); font-family:var(--font-heading); font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0 0 3px 3px" style-hover="border-color:var(--color-accent); color:var(--color-accent-300)">›</button>
+      </div>
+      <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:9px; padding:var(--space-3) var(--space-6)">
+        <sc-for list="{{ introDots }}" as="d" hint-placeholder-count="7">
+          <button onClick="{{ d.onGo }}" aria-label="{{ d.label }}" style="width:26px; height:2px; border:none; padding:0; cursor:pointer; background:{{ d.bg }}"></button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;collectionName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;동방예술관&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ko&quot;,&quot;options&quot;:[&quot;ko&quot;,&quot;zh&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;showNumbers&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;전시 설정&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;collectionName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;동방예술관&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ko&quot;,&quot;options&quot;:[&quot;ko&quot;,&quot;zh&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;showNumbers&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;showIntro&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;전시 설정&quot;}}">
 const CATALOG_TOTAL = 238;
 
 const ROOMS = [
   { k: "도자기류", z: "陶瓷", items: [
-    { id: 45, s: 0.74 }, { id: 54, s: 0.72 }, { id: 12, s: 0.42 }, { id: 55, s: 0.40 },
-    { id: 225, s: 0.74 }, { id: 226, s: 0.72 }, { id: 223, s: 0.72 }, { id: 46, s: 0.70 },
-    { id: 47, s: 0.74 }, { id: 50, s: 0.72 }, { id: 52, s: 0.72 }, { id: 53, s: 0.70 },
-    { id: 63, s: 0.74 }, { id: 64, s: 0.72 }, { id: 65, s: 0.72 }, { id: 51, s: 0.70 },
-    { id: 21, s: 0.74 }, { id: 22, s: 0.72 }, { id: 68, s: 0.72 }, { id: 235, s: 0.70 },
-    { id: 171, s: 0.74 }, { id: 58, s: 0.72 }, { id: 169, s: 0.72 }, { id: 170, s: 0.70 },
-    { id: 11, s: 0.74 }, { id: 13, s: 0.72 }, { id: 14, s: 0.72 }, { id: 15, s: 0.70 },
-    { id: 25, s: 0.74 }, { id: 26, s: 0.72 }, { id: 29, s: 0.72 }, { id: 30, s: 0.70 },
-    { id: 59, s: 0.74 }, { id: 60, s: 0.72 }, { id: 61, s: 0.72 }, { id: 62, s: 0.70 },
-    { id: 16, s: 0.74 }, { id: 18, s: 0.72 }, { id: 19, s: 0.50 }, { id: 20, s: 0.50 },
-    { id: 175, s: 0.74 }, { id: 176, s: 0.72 }, { id: 24, s: 0.72 }, { id: 23, s: 0.40 },
-    { id: 27, s: 0.54 }, { id: 56, s: 0.52 }, { id: 28, s: 0.40 }, { id: 57, s: 0.50 },
-    { id: 178, s: 0.50 }
+    { id: 45, s: 0.74 }, { id: 54, s: 0.72 }, { id: 12, s: 0.42 }, { id: 55, s: 0.40 }
   ] },
   { k: "불상", z: "佛像", items: [
-    { id: 1, s: 0.96 }, { id: 3, s: 0.90 }, { id: 4, s: 0.82 }, { id: 9, s: 0.92 },
-    { id: 10, s: 0.80 }, { id: 38, s: 0.90 }, { id: 48, s: 0.90 }, { id: 44, s: 0.80 },
-    { id: 5, s: 0.80 }, { id: 6, s: 0.90 }, { id: 17, s: 0.90 }, { id: 32, s: 0.80 },
-    { id: 49, s: 0.80 }, { id: 2, s: 0.90 }, { id: 33, s: 0.90 }, { id: 72, s: 0.80 },
-    { id: 73, s: 0.80 }, { id: 78, s: 0.80 }, { id: 151, s: 0.90 }, { id: 155, s: 0.80 },
-    { id: 172, s: 0.80 }, { id: 173, s: 0.80 }, { id: 174, s: 0.90 }, { id: 177, s: 0.80 },
-    { id: 218, s: 0.80 }, { id: 219, s: 0.80 }, { id: 220, s: 0.90 }, { id: 221, s: 0.80 },
-    { id: 75, s: 1.00 }
+    { id: 1, s: 0.96 }, { id: 3, s: 1.00 }, { id: 4, s: 0.82 }, { id: 9, s: 0.92 },
+    { id: 10, s: 0.80 }, { id: 38, s: 1.00 }, { id: 48, s: 0.95 }, { id: 59, s: 0.68 }
   ] },
   { k: "청동", z: "青铜", items: [
     { id: 70, s: 0.60 }, { id: 74, s: 0.98 }
@@ -290,6 +295,11 @@ const ROOMS = [
     { id: 21, s: 0.58 }, { id: 24, s: 0.44 }, { id: 107, s: 0.60 }
   ] },
   { k: "기타", z: "其他", items: [] }
+];
+
+const INTRO = [
+  "assets/intro/1.jpg", "assets/intro/2.png", "assets/intro/3.png", "assets/intro/4.png",
+  "assets/intro/5.png", "assets/intro/6.png", "assets/intro/7.png"
 ];
 
 const PER_SCENE = 4;
@@ -308,11 +318,13 @@ const T = {
   ko: { brand: "동방예술관", route: "전시 동선", close: "닫기", addCompare: "비교에 추가",
     compareOpen: "비교 보기", compareClear: "비우기", trayEmpty: "비교함 비어 있음",
     zoomHint: "끌어서 이동 · 원본 해상도", emptyRoom: "사진이 준비되면 이 전시실에 놓입니다",
+    introTitle: "도록 서문", enter: "전시관 입장",
     sub: "도록 수록 " + CATALOG_TOTAL + "점 · 현재 공개 " + SHOWN + "점 · 진위 검사 진행 중",
     tray: (n) => "비교함 " + n + "/2", room: (i, r) => "제" + (i + 1) + "실 · " + r.k },
   zh: { brand: "东方艺术馆", route: "参观路线", close: "关闭", addCompare: "加入对比",
     compareOpen: "对比查看", compareClear: "清空", trayEmpty: "对比栏为空",
     zoomHint: "拖动移动 · 原始分辨率", emptyRoom: "照片备齐后将陈列于此展厅",
+    introTitle: "图录序言", enter: "进入展馆",
     sub: "图录收录 " + CATALOG_TOTAL + " 件 · 现公开 " + SHOWN + " 件 · 真伪鉴定进行中",
     tray: (n) => "对比栏 " + n + "/2", room: (i, r) => "第" + (i + 1) + "厅 · " + r.z }
 };
@@ -321,13 +333,20 @@ const ZSTEPS = [1, 1.6, 2.4, 3.6];
 
 class Component extends DCLogic {
   state = { scene: 0, lang: null, zoomId: null, zi: 1, zx: 0, zy: 0,
-    compare: [], compareOpen: false, guideOpen: false, vw: 1440, vh: 900 };
+    compare: [], compareOpen: false, guideOpen: false, vw: 1440, vh: 900,
+    introOpen: true, ip: 0 };
 
   componentDidMount() {
     this._resize = () => this.setState({ vw: window.innerWidth, vh: window.innerHeight });
     this._resize();
     window.addEventListener("resize", this._resize);
     this._key = (e) => {
+      if (this.state.introOpen && this.props.showIntro !== false) {
+        if (e.key === "Escape" || e.key === "Enter") this.setState({ introOpen: false });
+        if (e.key === "ArrowRight") this.introMove(1);
+        if (e.key === "ArrowLeft") this.introMove(-1);
+        return;
+      }
       if (e.key === "Escape") { this.setState({ zoomId: null, compareOpen: false, guideOpen: false }); return; }
       if (this.state.zoomId !== null || this.state.compareOpen || this.state.guideOpen) return;
       if (e.key === "ArrowRight") this.move(1);
@@ -340,6 +359,7 @@ class Component extends DCLogic {
     window.removeEventListener("keydown", this._key);
   }
 
+  introMove(d) { this.setState({ ip: (this.state.ip + d + INTRO.length) % INTRO.length }); }
   move(d) { this.setState({ scene: (this.state.scene + d + SCENES.length) % SCENES.length, zoomId: null }); }
   lang() { return this.state.lang || this.props.defaultLang || "ko"; }
 
@@ -363,7 +383,8 @@ class Component extends DCLogic {
       roomTitle: mob ? "22px" : "30px",
       compareCols: mob ? "1fr" : "1fr 1fr",
       compareImg: mob ? "32vh" : "52vh",
-      guideCols: mob ? "1fr" : "1fr 1fr 1fr"
+      guideCols: mob ? "1fr" : "1fr 1fr 1fr",
+      introPad: mob ? "var(--space-3) 58px" : short ? "var(--space-3) 76px" : "var(--space-5) 76px"
     };
 
     const sc = SCENES[this.state.scene], room = ROOMS[sc.room];
@@ -432,7 +453,20 @@ class Component extends DCLogic {
       openCompare: () => this.setState({ compareOpen: true, zoomId: null }),
       closeCompare: () => this.setState({ compareOpen: false }),
       clearCompare: () => this.setState({ compare: [], compareOpen: false }),
-      guideOpen: this.state.guideOpen
+      guideOpen: this.state.guideOpen,
+
+      introOpen: this.state.introOpen && this.props.showIntro !== false,
+      intro: { src: INTRO[this.state.ip] },
+      introCounter: String(this.state.ip + 1).padStart(2, "0") + " / " + String(INTRO.length).padStart(2, "0"),
+      introDots: INTRO.map((s, i) => ({
+        label: String(i + 1),
+        bg: i === this.state.ip ? "var(--color-accent)" : "rgba(243,242,242,.26)",
+        onGo: () => this.setState({ ip: i })
+      })),
+      introPrev: () => this.introMove(-1),
+      introNext: () => this.introMove(1),
+      enter: () => this.setState({ introOpen: false }),
+      openIntro: () => this.setState({ introOpen: true, ip: 0 })
     };
   }
 }
