@@ -74,15 +74,24 @@
     </div>
   </main>
 
-  <footer style="flex:0 0 auto; display:flex; align-items:center; gap:var(--space-4); padding:var(--space-3) var(--space-6); border-top:1px solid var(--color-divider)">
-    <span style="flex:0 0 auto; font-size:11px; letter-spacing:0.18em; color:var(--color-neutral-800); white-space:nowrap">{{ t.route }}</span>
-    <div style="flex:1 1 auto; display:flex; align-items:stretch; gap:6px; overflow-x:auto; overflow-y:hidden; padding-bottom:6px">
-      <sc-for list="{{ rail }}" as="s" hint-placeholder-count="8">
-        <button onClick="{{ s.onGo }}" style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 10px; cursor:pointer; border-radius:var(--radius-md); border:1px solid {{ s.border }}; background:{{ s.bg }}">
-          <span style="font-family:var(--font-heading); font-size:13px; line-height:1.2; color:{{ s.fg }}; white-space:nowrap">{{ s.label }}</span>
-          <span style="font-size:11px; letter-spacing:0.08em; color:var(--color-neutral-800); font-feature-settings:'tnum'">{{ s.range }}</span>
-        </button>
-      </sc-for>
+  <footer style="flex:0 0 auto; display:flex; align-items:flex-end; justify-content:space-between; gap:var(--space-4); flex-wrap:wrap; padding:var(--space-3) var(--space-6); border-top:1px solid var(--color-divider)">
+    <div style="flex:1 1 280px; min-width:0; display:flex; flex-direction:column; gap:8px">
+      <div style="display:flex; align-items:baseline; gap:var(--space-3); flex-wrap:wrap">
+        <span style="flex:0 0 auto; font-size:11px; letter-spacing:0.18em; color:var(--color-neutral-800); white-space:nowrap">{{ t.route }}</span>
+        <span style="font-size:11px; line-height:1.45; color:var(--color-neutral-700)">{{ t.routeHint }}</span>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px">
+        <sc-for list="{{ rooms }}" as="r" hint-placeholder-count="7">
+          <button onClick="{{ r.onGo }}" aria-pressed="{{ r.on }}" style="flex:0 0 auto; min-height:40px; padding:8px 12px; cursor:pointer; border-radius:var(--radius-md); border:1px solid {{ r.border }}; background:{{ r.bg }}; font-family:var(--font-heading); font-size:14px; line-height:1.2; color:{{ r.fg }}" style-hover="border-color:var(--color-accent)">{{ r.label }}</button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ showParts }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px">
+          <sc-for list="{{ parts }}" as="p" hint-placeholder-count="4">
+            <button onClick="{{ p.onGo }}" aria-pressed="{{ p.on }}" style="flex:0 0 auto; min-width:40px; min-height:36px; padding:6px 10px; cursor:pointer; border-radius:var(--radius-md); border:1px solid {{ p.border }}; background:{{ p.bg }}; font-family:var(--font-heading); font-size:13px; line-height:1; letter-spacing:0.04em; color:{{ p.fg }}; font-feature-settings:'tnum'" style-hover="border-color:var(--color-accent)">{{ p.label }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
     </div>
     <div style="flex:0 0 auto; display:flex; align-items:center; gap:var(--space-3)">
       <span style="font-size:11px; letter-spacing:0.12em; color:var(--color-neutral-800); white-space:nowrap">{{ t.tray }}</span>
@@ -178,7 +187,7 @@
     { id: 3,   s: 1.00 },
     { id: 112, s: 0.70 }     ← 새로 넣은 112.jpg
 ] },</pre>
-          <p style="margin:var(--space-2) 0 0; font-size:14px; line-height:1.85; text-align:justify">저장하고 브라우저를 새로 고치면 바로 보입니다. 한 장면에는 네 점까지 놓이고, 다섯 점이 넘으면 같은 전시실이 <em>1/2, 2/2</em> 장면으로 자동으로 나뉘어 화살표로 이어집니다. 즉 238점을 다 넣어도 목록만 길어질 뿐 구조는 그대로입니다.</p>
+          <p style="margin:var(--space-2) 0 0; font-size:14px; line-height:1.85; text-align:justify">저장하고 브라우저를 새로 고치면 바로 보입니다. 한 장면에는 네 점까지 놓이고, 다섯 점이 넘으면 같은 전시실이 <em>1/2, 2/2</em> 장면으로 자동으로 나뉘어 화살표로 이어집니다. 즉 238점을 다 넣어도 목록만 길어질 뿐 구조는 그대로입니다. 복사해 넣을 문장 보기(유물 한 줄·새 전시실 덩어리)는 <code>index.html</code> 안의 <code>const ROOMS</code> 바로 위 주석에도 적어 두었습니다.</p>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:var(--space-2)">
@@ -275,6 +284,37 @@ Windows        :  py -m http.server 8000
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;collectionName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;동방예술관&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ko&quot;,&quot;options&quot;:[&quot;ko&quot;,&quot;zh&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;showNumbers&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;전시 설정&quot;},&quot;showIntro&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;전시 설정&quot;}}">
 const CATALOG_TOTAL = 238;
+
+/*
+  ============================================================
+  전시실 목록을 손으로 고치는 방법  (이 주석 바로 아래 const ROOMS)
+  ============================================================
+
+  1) 기존 전시실에 유물 한 점 추가
+     해당 방의 items: [ ... ] 안에 아래 한 줄을 복사해 넣습니다.
+       { id: 번호, s: 0.80 },
+     예: 112번 유물이면  { id: 112, s: 0.80 },
+     id 숫자는 사진 파일 이름과 같아야 합니다.
+
+  2) 새 전시실(카테고리) 추가
+     방 객체 한 덩어리 전체({ k: ... 부터 ] }, 까지)를 복사해서
+     ROOMS 배열의 닫는 ]; 바로 앞에 붙여 넣습니다.
+     그다음 k(한국어 이름), z(중국어 이름), items 를 바꿉니다.
+
+  3) 사진 파일
+     사진은 assets/art/ 폴더에 {id}.jpg 로 넣습니다.
+     예: id 가 112 이면  assets/art/112.jpg
+
+  4) 장면 나누기
+     한 장면에는 PER_SCENE(지금 4점)까지 자동으로 놓입니다.
+     그보다 많으면 같은 전시실이 1/3 · 2/3 · 3/3 처럼 나뉩니다.
+     장면을 손으로 나눌 필요는 없습니다.
+
+  ----- 복사해 넣을 보기 (새 전시실 한 칸) -----
+  { k: "새 전시실", z: "新展厅", items: [
+    { id: 999, s: 0.80 },
+  ] },
+*/
 
 const ROOMS = [
   { k: "도자기류", z: "陶瓷", items: [
@@ -373,13 +413,15 @@ ROOMS.forEach((r, ri) => {
 const SHOWN = ROOMS.reduce((s, r) => s + r.items.length, 0);
 
 const T = {
-  ko: { brand: "동방예술관", route: "전시 동선", close: "닫기", addCompare: "비교에 추가",
+  ko: { brand: "동방예술관", route: "전시 동선", routeHint: "전시실을 먼저 고른 뒤 장면을 이동하세요",
+    close: "닫기", addCompare: "비교에 추가",
     compareOpen: "비교 보기", compareClear: "비우기", trayEmpty: "비교함 비어 있음",
     zoomHint: "끌어서 이동 · 원본 해상도", emptyRoom: "사진이 준비되면 이 전시실에 놓입니다",
     introTitle: "도록 서문", enter: "전시관 입장",
     sub: "도록 수록 " + CATALOG_TOTAL + "점 · 현재 공개 " + SHOWN + "점 · 진위 검사 진행 중",
     tray: (n) => "비교함 " + n + "/2", room: (i, r) => "제" + (i + 1) + "실 · " + r.k },
-  zh: { brand: "东方艺术馆", route: "参观路线", close: "关闭", addCompare: "加入对比",
+  zh: { brand: "东方艺术馆", route: "参观路线", routeHint: "请先选择展厅，再移动场景",
+    close: "关闭", addCompare: "加入对比",
     compareOpen: "对比查看", compareClear: "清空", trayEmpty: "对比栏为空",
     zoomHint: "拖动移动 · 原始分辨率", emptyRoom: "照片备齐后将陈列于此展厅",
     introTitle: "图录序言", enter: "进入展馆",
@@ -453,13 +495,27 @@ class Component extends DCLogic {
       onOpen: () => this.setState({ zoomId: it.id, zi: 1, zx: 0, zy: 0 })
     }));
 
-    const rail = SCENES.map((s, i) => {
-      const on = i === this.state.scene, r = ROOMS[s.room];
+    const rooms = ROOMS.map((r, ri) => {
+      const on = sc.room === ri;
+      const first = SCENES.findIndex(s => s.room === ri);
       return {
-        label: t.room(s.room, r),
-        range: r.items.length === 0 ? (lang === "zh" ? "筹备中" : "준비 중")
-          : s.parts > 1 ? s.part + " / " + s.parts
-          : s.items.length + (lang === "zh" ? " 件" : " 점"),
+        label: t.room(ri, r),
+        on,
+        border: on ? "var(--color-accent)" : "var(--color-divider)",
+        bg: on ? "color-mix(in srgb, var(--color-accent-100) 70%, transparent)" : "transparent",
+        fg: on ? "var(--color-accent-700)" : "var(--color-text)",
+        onGo: () => {
+          if (SCENES[this.state.scene].room === ri) return;
+          this.setState({ scene: first < 0 ? 0 : first, zoomId: null });
+        }
+      };
+    });
+
+    const parts = SCENES.map((s, i) => ({ s, i })).filter(x => x.s.room === sc.room).map(({ s, i }) => {
+      const on = i === this.state.scene;
+      return {
+        label: s.part + "/" + s.parts,
+        on,
         border: on ? "var(--color-accent)" : "var(--color-divider)",
         bg: on ? "color-mix(in srgb, var(--color-accent-100) 70%, transparent)" : "transparent",
         fg: on ? "var(--color-accent-700)" : "var(--color-text)",
@@ -472,7 +528,7 @@ class Component extends DCLogic {
 
     return {
       t: Object.assign({}, t, { brand, tray: this.state.compare.length ? t.tray(this.state.compare.length) : t.trayEmpty }),
-      L, items, rail,
+      L, items, rooms, parts, showParts: parts.length > 1,
       empty: sc.items.length === 0,
       scene: { room: t.room(sc.room, room), part: sc.parts > 1 ? sc.part + " / " + sc.parts : "" },
       sceneCounter: String(this.state.scene + 1).padStart(2, "0") + " / " + String(SCENES.length).padStart(2, "0"),
